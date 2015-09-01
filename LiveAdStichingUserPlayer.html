@@ -1,0 +1,70 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+	<title>Monetizing Live Video with Personalized Server-Based Ads</title>
+	<!--  2.34 breaks HDS ( use 2.34 ) -->
+	<script type="text/javascript" src="http://player.kaltura.com/tests/qunit/qunit-bootstrap.js"></script>
+	<script type="text/javascript" src="http://kgit.html5video.org/tags/v2.33/mwEmbedLoader.php"></script>
+	<script type="text/javascript" src="http://player.kaltura.com/docs/js/doc-bootstrap.js"></script>
+	<script src="moment.min.js"></script>
+	<style>
+		@media (max-width: 1000px) {
+			.container{
+				padding-left:10px;
+				width:100%;
+			}
+		}
+	</style>
+	</head>
+	<body>
+	<div class='container'>
+ 		<div class='row'>
+			<div class='col-md-6 col-center' style="text-align:center">
+				<h1>
+				Personalized Server-Based Ads
+				</h1>
+				<div style="width: 100%;display: inline-block;position: relative;"> 
+				<!--  inner pusher div defines aspect ratio: in this case 16:9 ~ 56.25% -->
+					<div id="dummy" style="margin-top: 56.25%;"></div>
+					<!--  the player embed target, set to take up available absolute space   -->
+					<div id="kaltura-player" style="position:absolute;top:0;left:0;left: 0;right: 0;bottom:0;border:solid thin black;">
+					</div>
+				</div>
+				
+				<div style="margin-left:auto;margin-right:auto;text-align:center;">
+				<h3> Install Kaltura Play, for native playback</h3>
+					<a href="https://itunes.apple.com/us/app/kaltura-play/id919225951?mt=8"><img style="width:200px;"src="http://player.kaltura.com/modules/KalturaSupport/tests/resources/ios-appstore-sm.png"></a>
+					<a href="https://play.google.com/store/apps/details?id=com.kaltura.kalturaplayertoolkit&hl=en"><img style="width:200px;"src="http://player.kaltura.com/modules/KalturaSupport/tests/resources/google-play-sm.png"></a>
+				</div>
+		
+		
+			</div>
+		</div>
+	</div>
+		
+		
+		
+		<script>
+		window['isKalturaDocsIframe']= true;
+		// parse url: 
+		var embedSettings = JSON.parse( window.location.hash.substring(1) );
+		// don't allow readyCallback in hash settings:
+		if( embedSettings['readyCallback'] ){
+			delete( embedSettings['readyCallback'] ) 
+		}
+		embedSettings['targetId'] = 'kaltura-player';
+		embedSettings['flashvars'] = {
+			"streamerType": "auto",
+			"autoPlay": true,
+			"LeadWithHLSOnFlash": true,
+			"playServerUrls": {
+				"enabledOn": "all"
+			},
+			"nativeCallout": {
+				"plugin":true
+			}
+		}
+		kWidget.embed( embedSettings );
+	</script>
+	</body>
+</html>
