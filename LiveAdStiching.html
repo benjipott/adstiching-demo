@@ -199,8 +199,8 @@ playServerUrls.enabledOn: "all" </pre>
 		doRequest: function(){
 			if( ! this.api ){
 				this.api = new kWidget.api({
-					'ks' : this.userObject.ks,
-					'wid': this.userObject.partnerId
+					'ks' : this.kalturaUserObject.ks,
+					'wid': this.kalturaUserObject.partnerId
 				})
 			}
 			this.api.doRequest.apply(this.api, arguments );
@@ -214,8 +214,8 @@ playServerUrls.enabledOn: "all" </pre>
 		showLogin: function(){
 			var _this = this;
 			var defer = $.Deferred();
-			kWidget.auth.getWidget( "loginWidget", function( userObject ){
-				_this.userObject = userObject;
+			kWidget.auth.getWidget( "loginWidget", function( kalturaUserObject ){
+				_this.kalturaUserObject = kalturaUserObject;
 				defer.resolve();
 			});
 			return defer;
@@ -323,7 +323,7 @@ playServerUrls.enabledOn: "all" </pre>
 				// activate admin player:
 				kWidget.embed({
 					 "targetId": 'kaltura_admin_player',
-					 "wid": '_' + _this.userObject.partnerId,
+					 "wid": '_' + _this.kalturaUserObject.partnerId,
 					 "uiconf_id": _this.playerUiConfId,
 					 "flashvars": {
 						 "streamerType": "hds",
@@ -453,7 +453,7 @@ playServerUrls.enabledOn: "all" </pre>
 			var defer = $.Deferred();
 			$container = this.setActive('stitch');
 			var link = window.location.href.split('LiveAdStiching.html')[0] + 'LiveAdStichingUserPlayer.html#' + JSON.stringify({
-				"wid": '_' + _this.userObject.partnerId,
+				"wid": '_' + _this.kalturaUserObject.partnerId,
 				"uiconf_id": _this.playerUiConfId,
 				"entry_id": _this.liveEntryId
 			})
