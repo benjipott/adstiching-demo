@@ -4,7 +4,7 @@
 	<title>Monetizing Live Video with Personalized Server-Based Ads</title>
 	<!--  2.34 breaks HDS ( use 2.34 ) -->
 	<script type="text/javascript" src="http://player.kaltura.com/tests/qunit/qunit-bootstrap.js"></script>
-	<script type="text/javascript" src="http://kgit.html5video.org/tags/v2.33/mwEmbedLoader.php"></script>
+	<script type="text/javascript" src="http://kgit.html5video.org/tags/v2.30.2/mwEmbedLoader.php"></script>
 	<script type="text/javascript" src="http://player.kaltura.com/docs/js/doc-bootstrap.js"></script>
 	<script src="moment.min.js"></script>
 	<script type="text/javascript" src="qrcode.min.js"></script>
@@ -70,7 +70,7 @@ playServerUrls.enabledOn: "all" </pre>
 		</div>
 		<div class="tab-pane fade" id="stitch">
 				<label for="vast-adtagurl">Ad Duration in seconds</label>
-				<input id="duration" type="number" class="form-control" value="15">
+				<input id="vast-duration" type="number" class="form-control" value="15">
 				<label for="vast-adtagurl">Ad Tag Url</label>
 				<input id="vast-adtagurl" type="text" style="width:500px" class="form-control" value="http://player.kaltura.com/modules/AdSupport/tests/perUserAgentAds.php"><br>
 				<button id="insert-ad" disabled type="submit" class="btn btn-default">Waiting for sync point ...</button>
@@ -109,7 +109,6 @@ playServerUrls.enabledOn: "all" </pre>
 				_this.setActive( $(this).attr('href').substring( 1 ) );
 			})
 		},
-		
 		doRequest: function(){
 			if( ! this.api ){
 				this.api = new kWidget.api({
@@ -242,14 +241,18 @@ playServerUrls.enabledOn: "all" </pre>
 					 "flashvars": {
 						 "streamerType": "hds",
 						 "autoPlay": true,
+						 "forceHDS": true,
 						 "LeadWithHLSOnFlash": false
 					 },
 					 "entry_id": _this.liveEntryId,
 					 "readyCallback": function( playerId ){
 						_this.adminPlayer = document.getElementById( playerId );
-						_this.adminPlayer.addJsListener( 'videoMetadataReceived', function( metadata ){
-							_this.onSyncPoint( metadata ) ;
-						})
+						window['onSyncPoint'] = function( metadata ){
+							setTimeout(function(){
+								_this.onSyncPoint( metadata );
+							},0);
+						}
+						_this.adminPlayer.addJsListener( 'videoMetadataReceived', 'onSyncPoint' );
 						timeSinceLastCheck = new Date();
 						var intervalIsLive = null;
 						var intervalTimeCheck = null;
@@ -273,7 +276,6 @@ playServerUrls.enabledOn: "all" </pre>
 						}, 10000);
 					}
 				});
-					
 			})
 			// add ingest info: 
 			return defer;
@@ -285,20 +287,38 @@ playServerUrls.enabledOn: "all" </pre>
 					return;
 				}
 				var date = new Date();
-				this.lastSyncPointTime = date.getTime();
-				this.lastSyncPointOffset = metadata.offset;
-				this.lastSyncPointTimestamp = metadata.timestamp;
-				$('#last_cue_point_time').html( "Last cue point:" ( (new Date() - new Date( this.lastSyncPointTimestamp ) )/1000 ).toFixed() + ' seconds ago' );
+				lastSyncPointTime = date.getTime();
+				lastSyncPointOffset = metadata.offset;
+				lastSyncPointTimestamp = metadata.timestamp;
+				$('#last_cue_point_time').html(new Date(lastSyncPointTimestamp).toUTCString());
 
-				$('#insert-ad').removeAttr('disabled').removeClass( 'btn-default').addClass( 'btn-danger' ).text( "Insert Ad");
-				consol.log('Ads Enabled last offset:' + this.lastSyncPointOffset + ' last timestamp: ' + this.lastSyncPointTimestamp);
+				$('#insert-ad').removeAttr('disabled').removeClass( 'btn-default').addClass( 'btn-danger' ).text( "Insert Ad").click(function(){
+					var date = new Date();
+					var startTime = lastSyncPointOffset + ( date.getTime() - lastSyncPointTime );
+					_this.sendAdCuePoint( startTime )
+				});
+				console.log('Ads Enabled last offset:' + this.lastSyncPointOffset + ' last timestamp: ' + this.lastSyncPointTimestamp);
 			}
+		},
+		sendAdCuePoint: function( startTime ){
+			this.api.doRequest({
+				'cuePoint:objectType': 'KalturaAdCuePoint',
+				'cuePoint:entryId': this.liveEntryId,
+				'cuePoint:startTime': startTime,
+				'cuePoint:protocolType': 'VPAID',
+				'cuePoint:sourceUrl': $('#vast-adtagurl').val(),
+				'cuePoint:adType': 1, // VIDEO
+				'cuePoint:title': 'Ad Stiching Cue-Point',
+				'cuePoint:duration': $('#vast-duration').val()
+			}, function( data ){
+				debugger;
+			})
 		},
 		showStitch: function(){
 			var _this = this;
 			var defer = $.Deferred();
 			$container = this.setActive('stitch');
-			var link = window.location.href.split('LiveAdStitching.html')[0] + 'LiveAdStichingUserPlayer.html#' + JSON.stringify({
+			var link = window.location.href.split('LiveAdStiching.html')[0] + 'LiveAdStichingUserPlayer.html#' + JSON.stringify({
 				"wid": '_' + _this.userObject.partnerId,
 				"uiconf_id": _this.playerUiConfId,
 				"entry_id": _this.liveEntryId
