@@ -4,7 +4,7 @@
 	<title>Monetizing Live Video with Personalized Server-Based Ads</title>
 	<!--  2.34 breaks HDS ( use 2.34 ) -->
 	<script type="text/javascript" src="http://player.kaltura.com/tests/qunit/qunit-bootstrap.js"></script>
-	<script type="text/javascript" src="http://kgit.html5video.org/tags/v2.30.2/mwEmbedLoader.php"></script>
+	<script type="text/javascript" src="http://kgit.html5video.org/tags/v2.33/mwEmbedLoader.php"></script>
 	<script type="text/javascript" src="http://player.kaltura.com/docs/js/doc-bootstrap.js"></script>
 	<script src="moment.min.js"></script>
 	<script type="text/javascript" src="qrcode.min.js"></script>
@@ -12,19 +12,91 @@
 	<style>
 		#selectLive tr, #selectPlayer tr { cursor: pointer; }
 		#selectLive tr:hover, #selectPlayer tr:hover { background: #EEE !important; }
+		.ad-stitch-diagram{
+			position: absolute;
+			left: 625px; 
+			top: 300px; 
+			width: 700px;
+			height: 580px;
+			display:none; 
+			background:url(diagram-overview.jpg); 
+			background-size:contain; 
+			background-repeat: no-repeat;
+		}
+		
+		.container-active-ad {
+			position: absolute;
+			top: 0;
+			left: 0;
+			bottom: 0;
+			right: 0;
+			color: #000000;
+			background: red;
+			opacity:.4;
+		}
+		.container-active-ad-span {
+			position: absolute;
+			top: 100px;
+			display:block;
+			width:100%;
+			line-height:1em;
+			
+			text-align:center;
+			color:#e2eaf3;
+			font-family:Verdana;
+			font-size:1.2em;
+			font-weight:bold;
+			text-decoration:none;
+		}
+		
+		.round-button {
+			width:100px;
+			margin:auto;
+			margin-top:40px;
+		}
+		.round-button-circle {
+			width: 100%;
+			height:0;
+			padding-bottom: 100%;
+			border-radius: 50%;
+			border:10px solid #EEB4B4;
+			overflow:hidden;
+			
+			background: #cc0000; 
+			box-shadow: 0 0 3px gray;
+		}
+		.round-button-circle:hover {
+			background: #e00;
+		}
+		.round-button a {
+			display:block;
+			float:left;
+			width:100%;
+			padding-top:50%;
+			padding-bottom:50%;
+			line-height:1em;
+			margin-top:-0.5em;
+			
+			text-align:center;
+			color:#e2eaf3;
+			font-family:Verdana;
+			font-size:1.2em;
+			font-weight:bold;
+			text-decoration:none;
+		}
 	</style>
 	</head>
 	<body>
-	<h1>
-	Monetizing Live Video with Personalized Server-Based Ads
-	</h1>
 	<ul class="nav nav-wizard">
 		<li class="active"><a href="#login">Login</a></li>
 		<li><a href="#selectPlayer">Select Player</a></li>
 		<li><a href="#selectLive">Select Live Stream</a></li>
 		<li><a href="#broadcast">Broadcast</a></li>
-		<li><a href="#stitch">Stitch Ads</a></li>
+		<li><a  href="#stitch">Stitch Ads</a></li>
 	</ul>
+	<h1 style="text-align:center;">
+	Monetizing Live Video with Personalized Server-Based Ads
+	</h1>
 	<div class="tab-content">
 		<div class="tab-pane fade active in" id="login">
 			<div id="loginWidget"></div>
@@ -69,20 +141,34 @@ playServerUrls.enabledOn: "all" </pre>
 
 		</div>
 		<div class="tab-pane fade" id="stitch">
-				<label for="vast-adtagurl">Ad Duration in seconds</label>
-				<input id="vast-duration" type="number" class="form-control" value="15">
-				<label for="vast-adtagurl">Ad Tag Url</label>
-				<input id="vast-adtagurl" type="text" style="width:500px" class="form-control" value="http://player.kaltura.com/modules/AdSupport/tests/perUserAgentAds.php"><br>
-				<button id="insert-ad" disabled type="submit" class="btn btn-default">Waiting for sync point ...</button>
+				<div style="display:none;">
+					<label for="vast-adtagurl">Ad Duration in seconds</label>
+					<input id="vast-duration" type="number" class="form-control" value="15">
+					<label for="vast-adtagurl">Ad Tag Url</label>
+					<input id="vast-adtagurl" type="text" style="width:500px" class="form-control" value="http://player.kaltura.com/modules/AdSupport/tests/perUserAgentAds.php"><br>
+				</div>
 		</div>
 	</div>
 	<!--  player is outside of content tags, spans both broadcast and stitch -->
 	<div>
-		<div id="kaltura_admin_player" style="width:600px;height:400px;float:left"></div>
-		<div id="kaltura_user_player_link" style="float:left;width:300px;padding-left:20px;"></div>
+		<div class="float-wrapper" style="float:left;width:600px;height:460px;">
+			<h3 class="admin-player-desc" style="display:none;text-align: center;">Kaltura incoming live feed</h3>
+			<div id="kaltura_admin_player" style="width:600px;height:400px;position:relative"></div>
+		</div>
+		<div class="ad-stitch-diagram" style=""></div>
+		
 	</div>
-	<div style="clear:both"></div>
-	<div id="last_cue_point_time"></div>
+	<div style="clear:both;height:10px;" ></div>
+	
+	<div class="float-wrapper" style="float:left;width:280px;height:300px;">
+		<div class="round-button" style="display:none;" id="insert-ad">
+			<div class="round-button-circle">
+				<a href="#" class="round-button">Waiting</a>
+				</div>
+		</div>
+	</div>
+	<div id="kaltura_user_player_link" style="float:left; width:250px;padding-left:20px;"></div>
+	
 	<script>
 	// hide qunit links: 
 	window['isKalturaDocsIframe']= true;
@@ -92,6 +178,7 @@ playServerUrls.enabledOn: "all" </pre>
 	liveAdStitching.prototype = {
 		// holds the current live entry id:
 		liveEntryId: null,
+		activeCuePointAdFlag: null,
 		init:function(){
 			var _this = this;
 			this.showLogin()
@@ -281,6 +368,7 @@ playServerUrls.enabledOn: "all" </pre>
 			return defer;
 		},
 		onSyncPoint: function(metadata){
+			var _this = this;
 			if ( metadata && metadata.objectType == "KalturaSyncPoint") {
 				if(this.lastSyncPointOffset && this.lastSyncPointOffset >= metadata.offset){
 					console.log("Last offset: " + this.lastSyncPointOffset + " >= new offset:" + metadata.offset + " delta:" + ( this.lastSyncPointOffset - metadata.offset ) );
@@ -292,16 +380,32 @@ playServerUrls.enabledOn: "all" </pre>
 				lastSyncPointTimestamp = metadata.timestamp;
 				$('#last_cue_point_time').html(new Date(lastSyncPointTimestamp).toUTCString());
 
-				$('#insert-ad').removeAttr('disabled').removeClass( 'btn-default').addClass( 'btn-danger' ).text( "Insert Ad").click(function(){
+				console.log('Ads Enabled last offset:' + lastSyncPointOffset + ' last timestamp: ' + lastSyncPointTimestamp);
+				
+				// don't re-bind the insert ad once active
+				if( $('#insert-ad').hasClass('active') ){
+					return ;
+				}
+				$('#insert-ad').addClass('active').click(function(){
 					var date = new Date();
 					var startTime = lastSyncPointOffset + ( date.getTime() - lastSyncPointTime );
-					_this.sendAdCuePoint( startTime )
-				});
-				console.log('Ads Enabled last offset:' + this.lastSyncPointOffset + ' last timestamp: ' + this.lastSyncPointTimestamp);
+					_this.sendAdCuePoint( startTime );
+					return false;
+				}).fadeIn("fast").find('a').text('Insert Ad')
+				
 			}
 		},
 		sendAdCuePoint: function( startTime ){
+			var _this = this;
+			if( this.activeCuePointAdFlag ){
+				console.log("No cuePoint sent, activeCuePointAdFlag active");
+				return ;
+			}
+			this.activeCuePointAdFlag = true;
+			$('#insert-ad a').text('loading');
 			this.api.doRequest({
+				'service': 'cuePoint_cuePoint',
+				'action': 'add',
 				'cuePoint:objectType': 'KalturaAdCuePoint',
 				'cuePoint:entryId': this.liveEntryId,
 				'cuePoint:startTime': startTime,
@@ -309,9 +413,39 @@ playServerUrls.enabledOn: "all" </pre>
 				'cuePoint:sourceUrl': $('#vast-adtagurl').val(),
 				'cuePoint:adType': 1, // VIDEO
 				'cuePoint:title': 'Ad Stiching Cue-Point',
-				'cuePoint:duration': $('#vast-duration').val()
+				'cuePoint:duration': $('#vast-duration').val() * 1000
 			}, function( data ){
-				debugger;
+				if( data.status == 1 ){
+					$('#insert-ad a').text('ad active');
+					console.log( "Cue-Point created: " + data.id );
+					_this.activeCuePointAdFlag = true;
+					var activeBuffering = false;
+					// don't countdown if buffering
+					_this.adminPlayer.kBind( 'bufferStartEvent', function(){ activeBuffering = true; });
+					_this.adminPlayer.kBind( 'bufferEndEvent', function(){ activeBuffering = false; });
+					// dissactive activeCuePoint after ad time: 
+					var countDownTime = $('#vast-duration').val() ;
+					var updateAdOverlayInterval = setInterval(function(){
+						if( countDownTime == 0 ){
+							clearInterval( updateAdOverlayInterval );
+							$('#insert-ad a').text('Insert Ad');
+							_this.activeCuePointAdFlag = false; 
+							$('.container-active-ad,.container-active-ad-span').fadeOut();
+							return ;
+						}
+						if( ! activeBuffering ){
+							countDownTime--;
+						}
+						// remove old: 
+						$('.container-active-ad-span').remove();
+						$( "<span>Ad active for " + countDownTime + ' seconds.</span>')
+						.addClass( 'container-active-ad-span' ) 
+						.appendTo( '#kaltura_admin_player' );
+					},1000);
+					// display player overlay on admin player and block ad button
+					$("<div class='container-active-ad'></div>")
+					.appendTo( '#kaltura_admin_player').fadeIn("slow");
+				}
 			})
 		},
 		showStitch: function(){
@@ -323,17 +457,17 @@ playServerUrls.enabledOn: "all" </pre>
 				"uiconf_id": _this.playerUiConfId,
 				"entry_id": _this.liveEntryId
 			})
-			
+			$('.admin-player-desc,.ad-stitch-diagram').show();
 			// show link to user player: 
 			$('#kaltura_user_player_link').append(
-				$('<h3>').append(
-					$('<a/>').attr('href', link ).text( "User Player").attr('target', "_new")
-				).css('text-align', 'center'),
-				$('<div id="qrcode" style="width:300px; height:300px; margin-top:15px;"></div>')
+				$('<a>').attr({'href': link, 'target': '_new'}).append(
+					$('<div id="qrcode" style="width:250px; height:250px;"></div>'),
+					$("<h3>").text("User Players").css("text-align", 'center')
+				)
 			)
 			var qrcode = new QRCode(document.getElementById("qrcode"), {
-				width : 300,
-				height : 300
+				width : 250,
+				height : 250
 			});
 			qrcode.makeCode( link );
 		},
