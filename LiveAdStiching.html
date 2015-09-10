@@ -215,7 +215,9 @@ playServerUrls.enabledOn: "all" </pre>
 			var _this = this;
 			var defer = $.Deferred();
 			kWidget.auth.getWidget( "loginWidget", function( kalturaUserObject ){
-				_this.kalturaUserObject = kalturaUserObject;
+				if( ! _this.kalturaUserObject ){
+					_this.kalturaUserObject = kalturaUserObject;
+				}
 				defer.resolve();
 			});
 			return defer;
