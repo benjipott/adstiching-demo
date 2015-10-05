@@ -121,7 +121,8 @@ playServerUrls.enabledOn: "all" </pre>
 		</div>
 		<div class="tab-pane fade" id="selectLive">
 			<h3>Select Live stream:</h3>
-			Provision New Live Stream via <a href="http://kmc.kaltura.com/index.php/kmc/kmc4">Kaltura Management Console</a>
+			Provision New Live Stream via <a href="http://kmc.kaltura.com/index.php/kmc/kmc4">Kaltura Management Console</a><br>
+			DVR + Ad stitching is currently NOT supported.  
 			<div class="table-status"></div>
 			<br>
 			<table data-toggle="table" style="display:none;" class="table table-bordered table-condensed">
@@ -141,12 +142,18 @@ playServerUrls.enabledOn: "all" </pre>
 
 		</div>
 		<div class="tab-pane fade" id="stitch">
-				<div style="display:none;">
-					<label for="vast-adtagurl">Ad Duration in seconds</label>
-					<input id="vast-duration" type="number" class="form-control" value="15">
-					<label for="vast-adtagurl">Ad Tag Url</label>
-					<input id="vast-adtagurl" type="text" style="width:500px" class="form-control" value="http://player.kaltura.com/modules/AdSupport/tests/perUserAgentAds.php"><br>
-				</div>
+				<table>
+				<tr>
+					<td>
+						<label for="vast-adtagurl">Ad Duration in seconds</label>
+						<input id="vast-duration" type="number" class="form-control" value="15">
+					</td>
+					<td>
+						<label for="vast-adtagurl">Ad Tag Url</label>
+						<input id="vast-adtagurl" type="text" style="width:500px" class="form-control" value="http://player.kaltura.com/modules/AdSupport/tests/perUserAgentAds.php"><br>
+					</td>
+				</tr>
+				</table>
 		</div>
 	</div>
 	<!--  player is outside of content tags, spans both broadcast and stitch -->
@@ -440,7 +447,7 @@ playServerUrls.enabledOn: "all" </pre>
 						}
 						// remove old: 
 						$('.container-active-ad-span').remove();
-						$( "<span>Ad active for " + countDownTime + ' seconds.</span>')
+						$( "<span>Ad will be active here in user player <br><br> " + countDownTime + ' seconds.</span>')
 						.addClass( 'container-active-ad-span' ) 
 						.appendTo( '#kaltura_admin_player' );
 					},1000);
