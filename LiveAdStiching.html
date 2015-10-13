@@ -278,9 +278,9 @@ playServerUrls.enabledOn: "all" </pre>
 				"service": "baseentry",
 				"action": "list",
 				"filter:objectType":"KalturaMediaEntryFilter",
-				"filter:sourceTypeEqual":32,
+				"filter:mediaTypeIn":"201",
 				"filter:orderBy":"-createdAt",
-				"pager:pageSize":"50"
+				"pager:pageSize": "100"
 			}, function(data){
 				if( !data || !data.objects || data.totalCount == 0 ){
 					$container.find('.table-status').text('no live streams');
