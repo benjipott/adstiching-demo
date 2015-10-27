@@ -52,7 +52,7 @@
 			}
 			try{
 				var embedSettings = JSON.parse( window.location.hash.substring(1) );
-			}catch(){
+			} catch( e ){
 				// try with unescaped value
 				var embedSettings = JSON.parse( unescape( window.location.hash.substring(1) ) );
 			}
