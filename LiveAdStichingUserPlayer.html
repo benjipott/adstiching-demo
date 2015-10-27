@@ -50,7 +50,12 @@
 				$('#kaltura-player').text( 'Please supply a valid embed URL');
 				return ;
 			}
-			var embedSettings = JSON.parse( window.location.hash.substring(1) );
+			try{
+				var embedSettings = JSON.parse( window.location.hash.substring(1) );
+			}catch(){}
+				// try with unescaped value
+				var embedSettings = JSON.parse( unescape( window.location.hash.substring(1) ) );
+			}
 			if( !embedSettings || !embedSettings.entry_id || !embedSettings.uiconf_id || !embedSettings.wid ){
 				$('#kaltura-player').text( 'Please supply a valid embed URL' );
 				return ;
@@ -69,10 +74,10 @@
 				},
 				'controlBarContainer': {
 					"hover": true
-				},
+				}/*,
 				"nativeCallout": {
 					"plugin":true
-				}
+				}*/
 			}
 			kWidget.embed( embedSettings );
 		}();
